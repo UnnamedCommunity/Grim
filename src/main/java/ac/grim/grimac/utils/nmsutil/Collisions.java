@@ -2,12 +2,12 @@ package ac.grim.grimac.utils.nmsutil;
 
 import ac.grim.grimac.events.packets.PacketWorldBorder;
 import ac.grim.grimac.player.GrimPlayer;
+import ac.grim.grimac.utils.blockstate.ChunkUnsafe;
 import ac.grim.grimac.utils.chunks.Column;
 import ac.grim.grimac.utils.collisions.CollisionData;
 import ac.grim.grimac.utils.collisions.datatypes.CollisionBox;
 import ac.grim.grimac.utils.collisions.datatypes.SimpleCollisionBox;
 import ac.grim.grimac.utils.data.VectorData;
-import ac.grim.grimac.utils.latency.CompensatedWorld;
 import ac.grim.grimac.utils.math.GrimMath;
 import ac.grim.grimac.utils.math.VectorUtils;
 import com.github.retrooper.packetevents.PacketEvents;
@@ -262,15 +262,16 @@ public class Collisions {
                             int x = currX | chunkXGlobalPos;
                             int z = currZ | chunkZGlobalPos;
 
-                            WrappedBlockState data = section.get(CompensatedWorld.blockVersion, x & 0xF, y & 0xF, z & 0xF);
+                            int globalId = ChunkUnsafe.getStateId(section, x & 0xF, y & 0xF, z & 0xF);
 
                             // Works on both legacy and modern!  Faster than checking for material types, most common case
-                            if (data.getGlobalId() == 0) continue;
+                            if (globalId == 0) continue;
                             // Thanks SpottedLeaf for this optimization, I took edgeCount from Tuinity
                             int edgeCount = ((x == minBlockX || x == maxBlockX) ? 1 : 0) +
                                     ((y == minBlockY || y == maxBlockY) ? 1 : 0) +
                                     ((z == minBlockZ || z == maxBlockZ) ? 1 : 0);
 
+                            WrappedBlockState data = ChunkUnsafe.getByGlobalIdUnsafe(globalId);
                             if (edgeCount != 3 && (edgeCount != 1 || Materials.isShapeExceedsCube(data.getType()))
                                     && (edgeCount != 2 || data.getType() == StateTypes.PISTON_HEAD)) {
                                 // Don't add to a list if we only care if the player intersects with the block
@@ -394,7 +395,7 @@ public class Collisions {
         for (int i = blockPos.getBlockX(); i <= blockPos2.getBlockX(); ++i) {
             for (int j = blockPos.getBlockY(); j <= blockPos2.getBlockY(); ++j) {
                 for (int k = blockPos.getBlockZ(); k <= blockPos2.getBlockZ(); ++k) {
-                    WrappedBlockState block = player.compensatedWorld.getWrappedBlockStateAt(i, j, k);
+                    WrappedBlockState block = player.compensatedWorld.getWrappedBlockStateAtUnsafe(i, j, k);
                     StateType blockType = block.getType();
 
                     if (blockType == StateTypes.COBWEB) {
@@ -642,7 +643,7 @@ public class Collisions {
                             int x = currX | chunkXGlobalPos;
                             int z = currZ | chunkZGlobalPos;
 
-                            WrappedBlockState data = section.get(CompensatedWorld.blockVersion, x & 0xF, y & 0xF, z & 0xF);
+                            WrappedBlockState data = ChunkUnsafe.getStateUnsafe(section, x & 0xF, y & 0xF, z & 0xF);
 
                             if (searchingFor.test(data, new Vector3i(x, y, z))) return true;
                         }

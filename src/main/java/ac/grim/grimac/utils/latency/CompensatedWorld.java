@@ -3,6 +3,7 @@ package ac.grim.grimac.utils.latency;
 import ac.grim.grimac.GrimAPI;
 import ac.grim.grimac.manager.init.start.ViaBackwardsManager;
 import ac.grim.grimac.player.GrimPlayer;
+import ac.grim.grimac.utils.blockstate.ChunkUnsafe;
 import ac.grim.grimac.utils.chunks.Column;
 import ac.grim.grimac.utils.collisions.CollisionData;
 import ac.grim.grimac.utils.collisions.datatypes.SimpleCollisionBox;
@@ -280,12 +281,12 @@ public class CompensatedWorld {
             }
 
             // The method also gets called for the previous state before replacement
-            player.pointThreeEstimator.handleChangeBlock(x, y, z, chunk.get(blockVersion, x & 0xF, offsetY & 0xF, z & 0xF));
+            player.pointThreeEstimator.handleChangeBlock(x, y, z, ChunkUnsafe.getStateUnsafe(chunk, x & 0xF, offsetY & 0xF, z & 0xF));
 
             chunk.set(null, x & 0xF, offsetY & 0xF, z & 0xF, combinedID);
 
             // Handle stupidity such as fluids changing in idle ticks.
-            player.pointThreeEstimator.handleChangeBlock(x, y, z, WrappedBlockState.getByGlobalId(blockVersion, combinedID));
+            player.pointThreeEstimator.handleChangeBlock(x, y, z, ChunkUnsafe.getByGlobalIdUnsafe(combinedID));
         }
     }
 
@@ -361,7 +362,7 @@ public class CompensatedWorld {
 
             BlockFace direction;
             if (data.entity == null) {
-                WrappedBlockState state = player.compensatedWorld.getWrappedBlockStateAt(data.blockPos.getX(), data.blockPos.getY(), data.blockPos.getZ());
+                WrappedBlockState state = player.compensatedWorld.getWrappedBlockStateAtUnsafe(data.blockPos.getX(), data.blockPos.getY(), data.blockPos.getZ());
                 direction = state.getFacing();
             } else {
                 direction = ((PacketEntityShulker) data.entity).facing.getOppositeFace();
@@ -412,22 +413,37 @@ public class CompensatedWorld {
     }
 
     public WrappedBlockState getWrappedBlockStateAt(int x, int y, int z) {
-        if (noNegativeBlocks && y < 0) return airData;
-
-        try {
-            Column column = getChunk(x >> 4, z >> 4);
-
-            y -= minHeight;
-            if (column == null || y < 0 || (y >> 4) >= column.getChunks().length) return airData;
-
-            BaseChunk chunk = column.getChunks()[y >> 4];
-            if (chunk != null) {
-                return chunk.get(blockVersion, x & 0xF, y & 0xF, z & 0xF);
-            }
-        } catch (Exception ignored) {
+        int stateId = getStateId(x, y, z);
+        if (stateId == 0) {
+            return airData;
         }
 
-        return airData;
+        return ChunkUnsafe.getByGlobalId(stateId);
+    }
+
+    public WrappedBlockState getWrappedBlockStateAtUnsafe(int x, int y, int z) {
+        int stateId = getStateId(x, y, z);
+        if (stateId == 0) {
+            return airData;
+        }
+
+        return ChunkUnsafe.getByGlobalIdUnsafe(stateId);
+    }
+
+    public int getStateId(int x, int y, int z) {
+        if (noNegativeBlocks && y < 0) return 0;
+
+        Column column = getChunk(x >> 4, z >> 4);
+
+        y -= minHeight;
+        if (column == null || y < 0 || (y >> 4) >= column.getChunks().length) return 0;
+
+        BaseChunk chunk = column.getChunks()[y >> 4];
+        if (chunk != null) {
+            return ChunkUnsafe.getStateId(chunk, x & 0xF, y & 0xF, z & 0xF);
+        }
+
+        return 0;
     }
 
     // Not direct power into a block
@@ -582,7 +598,7 @@ public class CompensatedWorld {
     }
 
     public StateType getStateTypeAt(double x, double y, double z) {
-        return getWrappedBlockStateAt((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z)).getType();
+        return getWrappedBlockStateAtUnsafe((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z)).getType();
     }
 
     public WrappedBlockState getWrappedBlockStateAt(double x, double y, double z) {
@@ -594,7 +610,7 @@ public class CompensatedWorld {
     }
 
     public boolean isWaterSourceBlock(int x, int y, int z) {
-        WrappedBlockState bukkitBlock = getWrappedBlockStateAt(x, y, z);
+        WrappedBlockState bukkitBlock = getWrappedBlockStateAtUnsafe(x, y, z);
         return Materials.isWaterSource(player.getClientVersion(), bukkitBlock);
     }
 
@@ -603,10 +619,10 @@ public class CompensatedWorld {
     }
 
     public double getLavaFluidLevelAt(int x, int y, int z) {
-        WrappedBlockState magicBlockState = getWrappedBlockStateAt(x, y, z);
-        WrappedBlockState magicBlockStateAbove = getWrappedBlockStateAt(x, y + 1, z);
-
+        WrappedBlockState magicBlockState = getWrappedBlockStateAtUnsafe(x, y, z);
         if (magicBlockState.getType() != StateTypes.LAVA) return 0;
+
+        WrappedBlockState magicBlockStateAbove = getWrappedBlockStateAtUnsafe(x, y + 1, z);
         if (magicBlockStateAbove.getType() == StateTypes.LAVA) return 1;
 
         int level = magicBlockState.getLevel();
@@ -629,13 +645,13 @@ public class CompensatedWorld {
     }
 
     public double getWaterFluidLevelAt(int x, int y, int z) {
-        WrappedBlockState wrappedBlock = getWrappedBlockStateAt(x, y, z);
+        WrappedBlockState wrappedBlock = getWrappedBlockStateAtUnsafe(x, y, z);
         boolean isWater = Materials.isWater(player.getClientVersion(), wrappedBlock);
 
         if (!isWater) return 0;
 
         // If water has water above it, it's block height is 1, even if it's waterlogged
-        if (Materials.isWater(player.getClientVersion(), getWrappedBlockStateAt(x, y + 1, z))) {
+        if (Materials.isWater(player.getClientVersion(), getWrappedBlockStateAtUnsafe(x, y + 1, z))) {
             return 1;
         }
 
