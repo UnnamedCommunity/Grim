@@ -158,6 +158,11 @@ public final class Vector {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Vector{" + "x=" + x + ", y=" + y + ", z=" + z + '}';
+    }
+
     public double distanceSquared(Vector vector) {
         return distanceSquared(vector.x, vector.y, vector.z);
     }
