@@ -405,9 +405,6 @@ public class PredictionEngine {
     }
 
     public int sortVectorData(VectorData a, VectorData b, GrimPlayer player) {
-        int aScore = 0;
-        int bScore = 0;
-
         // Order priority (to avoid false positives and false flagging future predictions):
         // Knockback and explosions
         // 0.03 ticks
@@ -415,41 +412,8 @@ public class PredictionEngine {
         // First bread knockback and explosions
         // Flagging groundspoof
         // Flagging flip items
-        if (a.isExplosion())
-            aScore -= 5;
-
-        if (a.isKnockback())
-            aScore -= 5;
-
-        if (b.isExplosion())
-            bScore -= 5;
-
-        if (b.isKnockback())
-            bScore -= 5;
-
-        if (a.isFirstBreadExplosion())
-            aScore += 1;
-
-        if (b.isFirstBreadExplosion())
-            bScore += 1;
-
-        if (a.isFirstBreadKb())
-            aScore += 1;
-
-        if (b.isFirstBreadKb())
-            bScore += 1;
-
-        if (a.isFlipItem())
-            aScore += 3;
-
-        if (b.isFlipItem())
-            bScore += 3;
-
-        if (a.isZeroPointZeroThree())
-            aScore -= 1;
-
-        if (b.isZeroPointZeroThree())
-            bScore -= 1;
+        int aScore = a.getScore();
+        int bScore = b.getScore();
 
         // If the player is on the ground but the vector leads the player off the ground
         if ((player.compensatedEntities.getSelf().inVehicle() ? player.clientControlledVerticalCollision : player.onGround) && a.vector.getY() >= 0)

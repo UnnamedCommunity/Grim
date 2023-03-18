@@ -92,6 +92,19 @@ public class VectorData {
         return (debuggingData & VectorType.AttackSlow) != 0;
     }
 
+    public int getScore() {
+        int score = 0;
+        if (this.debuggingData != 0) {
+            if (isExplosion()) score -= 5;
+            if (isKnockback()) score -= 5;
+            if (isFirstBreadExplosion()) score += 1;
+            if (isFirstBreadKb()) score += 1;
+            if (isFlipItem()) score += 3;
+            if (isZeroPointZeroThree()) score -= 1;
+        }
+        return score;
+    }
+
     @Override
     public String toString() {
         return "VectorData{" +
