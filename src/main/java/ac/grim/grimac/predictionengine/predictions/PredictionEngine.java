@@ -360,7 +360,7 @@ public class PredictionEngine {
 
     private void addAttackSlowToPossibilities(GrimPlayer player, Set<VectorData> velocities) {
         for (int x = 1; x <= Math.min(player.maxPlayerAttackSlow, 5); x++) {
-            for (VectorData data : new HashSet<>(velocities)) {
+            for (VectorData data : velocities.toArray(new VectorData[0])) {
                 velocities.add(data.returnNewModified(data.vector.copy().mulXZ(0.6, 0.6), VectorData.VectorType.AttackSlow));
             }
         }
@@ -392,7 +392,7 @@ public class PredictionEngine {
     }
 
     public void addExplosionToPossibilities(GrimPlayer player, Set<VectorData> existingVelocities) {
-        for (VectorData vector : new HashSet<>(existingVelocities)) {
+        for (VectorData vector : existingVelocities.toArray(new VectorData[0])) {
             if (player.likelyExplosions != null) {
                 existingVelocities.add(new VectorData(vector.vector.copy().add(player.likelyExplosions.vector), vector, VectorData.VectorType.Explosion));
             }

@@ -265,7 +265,7 @@ public class GrimPlayer implements GrimUser {
         // Knockback takes precedence over piston pushing in my testing
         // It's very difficult to test precedence so if there's issues with this bouncy implementation let me know
         if (!uncertaintyHandler.slimePistonBounces.isEmpty()) {
-            for (VectorData data : new HashSet<>(possibleMovements)) {
+            for (VectorData data : possibleMovements.toArray(new VectorData[0])) {
                 for (BlockFace direction : uncertaintyHandler.slimePistonBounces) {
                     if (direction.getModX() != 0) {
                         possibleMovements.add(data.returnNewModified(data.vector.copy().setX(direction.getModX()), VectorData.VectorType.SlimePistonBounce));

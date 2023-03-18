@@ -10,7 +10,7 @@ import java.util.Set;
 public class PredictionEngineLava extends PredictionEngine {
     @Override
     public void addJumpsToPossibilities(GrimPlayer player, Set<VectorData> existingVelocities) {
-        for (VectorData vector : new HashSet<>(existingVelocities)) {
+        for (VectorData vector : existingVelocities.toArray(new VectorData[0])) {
             existingVelocities.add(new VectorData(vector.vector.copy().addY(0.04), vector, VectorData.VectorType.Jump));
 
             if (player.slightlyTouchingLava && player.lastOnGround && !player.onGround) {
