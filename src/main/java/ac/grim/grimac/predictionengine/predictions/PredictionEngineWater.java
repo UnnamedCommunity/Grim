@@ -8,7 +8,7 @@ import ac.grim.grimac.utils.nmsutil.Collisions;
 import ac.grim.grimac.utils.nmsutil.FluidFallingAdjustedMovement;
 import ac.grim.grimac.utils.nmsutil.ReachUtils;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,11 +21,9 @@ public class PredictionEngineWater extends PredictionEngine {
     double lastY;
 
     public static void staticVectorEndOfTick(GrimPlayer player, Vector vector, float swimmingFriction, double playerGravity, boolean isFalling) {
-        vector.multiply(new Vector(swimmingFriction, 0.8F, swimmingFriction));
+        vector.mul(swimmingFriction, 0.8F, swimmingFriction);
         Vector fluidVector = FluidFallingAdjustedMovement.getFluidFallingAdjustedMovement(player, playerGravity, isFalling, vector);
-        vector.setX(fluidVector.getX());
-        vector.setY(fluidVector.getY());
-        vector.setZ(fluidVector.getZ());
+        vector.set(fluidVector);
     }
 
     public static Set<VectorData> transformSwimmingVectors(GrimPlayer player, Set<VectorData> base) {
@@ -75,10 +73,10 @@ public class PredictionEngineWater extends PredictionEngine {
     @Override
     public void addJumpsToPossibilities(GrimPlayer player, Set<VectorData> existingVelocities) {
         for (VectorData vector : new HashSet<>(existingVelocities)) {
-            existingVelocities.add(vector.returnNewModified(vector.vector.clone().add(new Vector(0, 0.04f, 0)), VectorData.VectorType.Jump));
+            existingVelocities.add(vector.returnNewModified(vector.vector.copy().addY(0.04), VectorData.VectorType.Jump));
 
             if (player.slightlyTouchingWater && player.lastOnGround && !player.onGround) {
-                Vector withJump = vector.vector.clone();
+                Vector withJump = vector.vector.copy();
                 super.doJump(player, withJump);
                 existingVelocities.add(new VectorData(withJump, vector, VectorData.VectorType.Jump));
             }
@@ -99,7 +97,7 @@ public class PredictionEngineWater extends PredictionEngine {
         // "hacky" climbing where player enters ladder within 0.03 movement (WHY DOES 0.03 EXIST???)
         if (player.lastWasClimbing == 0 && player.pointThreeEstimator.isNearClimbable() && (player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_14) || !Collisions.isEmpty(player, player.boundingBox.copy().expand(
                 player.clientVelocity.getX(), 0, player.clientVelocity.getZ()).expand(0.5, -SimpleCollisionBox.COLLISION_EPSILON, 0.5)))) {
-            player.lastWasClimbing = FluidFallingAdjustedMovement.getFluidFallingAdjustedMovement(player, playerGravity, isFalling, player.clientVelocity.clone().setY(0.2D * 0.8F)).getY();
+            player.lastWasClimbing = FluidFallingAdjustedMovement.getFluidFallingAdjustedMovement(player, playerGravity, isFalling, player.clientVelocity.copy().setY(0.2D * 0.8F)).getY();
         }
 
         Set<VectorData> baseVelocities = super.fetchPossibleStartTickVectors(player);

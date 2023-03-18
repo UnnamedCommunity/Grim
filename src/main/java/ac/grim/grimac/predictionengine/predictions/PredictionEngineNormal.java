@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.item.ItemStack;
 import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class PredictionEngineNormal extends PredictionEngine {
     @Override
     public void addJumpsToPossibilities(GrimPlayer player, Set<VectorData> existingVelocities) {
         for (VectorData vector : new HashSet<>(existingVelocities)) {
-            Vector jump = vector.vector.clone();
+            Vector jump = vector.vector.copy();
 
             if (!player.isFlying) {
                 // Negative jump boost does not allow the player to leave the ground
@@ -48,9 +48,9 @@ public class PredictionEngineNormal extends PredictionEngine {
 
                 JumpPower.jumpFromGround(player, jump);
             } else {
-                jump.add(new Vector(0, player.flySpeed * 3, 0));
+                jump.addY(player.flySpeed * 3);
                 if (!player.wasFlying) {
-                    Vector edgeCaseJump = jump.clone();
+                    Vector edgeCaseJump = jump.copy();
                     JumpPower.jumpFromGround(player, edgeCaseJump);
                     existingVelocities.add(vector.returnNewModified(edgeCaseJump, VectorData.VectorType.Jump));
                 }
@@ -78,7 +78,7 @@ public class PredictionEngineNormal extends PredictionEngine {
         if (player.lastWasClimbing == 0 && (player.pointThreeEstimator.isNearClimbable() || player.isClimbing) && (player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_14)
                 || !Collisions.isEmpty(player, player.boundingBox.copy().expand(
                 player.clientVelocity.getX(), 0, player.clientVelocity.getZ()).expand(0.5, -SimpleCollisionBox.COLLISION_EPSILON, 0.5))) || walkingOnPowderSnow) {
-            Vector ladder = player.clientVelocity.clone().setY(0.2);
+            Vector ladder = player.clientVelocity.copy().setY(0.2);
             staticVectorEndOfTick(player, ladder);
             player.lastWasClimbing = ladder.getY();
         }

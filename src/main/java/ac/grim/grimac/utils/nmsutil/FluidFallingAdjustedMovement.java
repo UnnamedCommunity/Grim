@@ -2,7 +2,7 @@ package ac.grim.grimac.utils.nmsutil;
 
 import ac.grim.grimac.player.GrimPlayer;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class FluidFallingAdjustedMovement {
     public static Vector getFluidFallingAdjustedMovement(GrimPlayer player, double d, boolean bl, Vector vec3) {

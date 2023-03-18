@@ -1,6 +1,6 @@
 package ac.grim.grimac.utils.data;
 
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.Objects;
 

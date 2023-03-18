@@ -3,7 +3,6 @@ package ac.grim.grimac.utils.math;
 import ac.grim.grimac.player.GrimPlayer;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import lombok.Getter;
-import org.bukkit.util.Vector;
 
 public class TrigHandler {
     GrimPlayer player;
@@ -49,7 +48,7 @@ public class TrigHandler {
         }
 
         if (offset > 1e-5) {
-            Vector trueMovement = player.actualMovement.clone().subtract(player.startTickClientVel);
+            Vector trueMovement = player.actualMovement.copy().sub(player.startTickClientVel);
             Vector correctMath = getVanillaMathMovement(trueMovement, 0.1f, player.xRot);
             Vector fastMath = getShitMathMovement(trueMovement, 0.1f, player.xRot);
 

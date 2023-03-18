@@ -13,7 +13,7 @@ import ac.grim.grimac.utils.nmsutil.GetBoundingBox;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +144,7 @@ public class BoatPredictionEngine extends PredictionEngine {
 
         for (VectorData data : possibleVectors) {
             controlBoat(player, data.vector);
-            data.vector.multiply(player.stuckSpeedMultiplier);
+            data.vector.mul(player.stuckSpeedMultiplier);
             vectors.add(data);
         }
 
@@ -274,6 +274,6 @@ public class BoatPredictionEngine extends PredictionEngine {
             f -= 0.005F;
         }
 
-        vector.add(new Vector(player.trigHandler.sin(-player.xRot * ((float) Math.PI / 180F)) * f, 0, (double) (player.trigHandler.cos(player.xRot * ((float) Math.PI / 180F)) * f)));
+        vector.addXZ(player.trigHandler.sin(-player.xRot * ((float) Math.PI / 180F)) * f, (double) (player.trigHandler.cos(player.xRot * ((float) Math.PI / 180F)) * f));
     }
 }

@@ -4,7 +4,7 @@ import ac.grim.grimac.player.GrimPlayer;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class JumpPower {
     public static void jumpFromGround(GrimPlayer player, Vector vector) {
@@ -18,7 +18,7 @@ public class JumpPower {
 
         if (player.isSprinting) {
             float f2 = player.xRot * ((float) Math.PI / 180F);
-            vector.add(new Vector(-player.trigHandler.sin(f2) * 0.2f, 0.0, player.trigHandler.cos(f2) * 0.2f));
+            vector.addXZ(-player.trigHandler.sin(f2) * 0.2f, player.trigHandler.cos(f2) * 0.2f);
         }
     }
 

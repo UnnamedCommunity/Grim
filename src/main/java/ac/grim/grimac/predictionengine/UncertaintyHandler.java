@@ -12,7 +12,7 @@ import ac.grim.grimac.utils.nmsutil.BoundingBoxSize;
 import ac.grim.grimac.utils.nmsutil.ReachUtils;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.world.BlockFace;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.*;
 
@@ -148,12 +148,12 @@ public class UncertaintyHandler {
             Vector maxLocation = new Vector(entityBox.maxX, entityBox.maxY, entityBox.maxZ);
             Vector minLocation = new Vector(entityBox.minX, entityBox.minY, entityBox.minZ);
 
-            Vector diff = minLocation.subtract(new Vector(player.lastX, player.lastY + 0.8 * 1.8, player.lastZ)).multiply(0.1);
+            Vector diff = minLocation.sub(player.lastX, player.lastY + 0.8 * 1.8, player.lastZ).mul(0.1);
             fishingRodPullBox.minX = Math.min(0, diff.getX());
             fishingRodPullBox.minY = Math.min(0, diff.getY());
             fishingRodPullBox.minZ = Math.min(0, diff.getZ());
 
-            diff = maxLocation.subtract(new Vector(player.lastX, player.lastY + 0.8 * 1.8, player.lastZ)).multiply(0.1);
+            diff = maxLocation.sub(player.lastX, player.lastY + 0.8 * 1.8, player.lastZ).mul(0.1);
             fishingRodPullBox.maxX = Math.max(0, diff.getX());
             fishingRodPullBox.maxY = Math.max(0, diff.getY());
             fishingRodPullBox.maxZ = Math.max(0, diff.getZ());

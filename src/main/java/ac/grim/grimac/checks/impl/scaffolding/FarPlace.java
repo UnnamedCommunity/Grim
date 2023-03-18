@@ -9,7 +9,7 @@ import ac.grim.grimac.utils.math.VectorUtils;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.github.retrooper.packetevents.util.Vector3i;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 @CheckData(name = "FarPlace")
 public class FarPlace extends BlockPlaceCheck {

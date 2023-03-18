@@ -18,7 +18,7 @@ import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.world.states.defaulttags.BlockTags;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class MovementTicker {
     public final GrimPlayer player;
@@ -160,9 +160,9 @@ public class MovementTicker {
         }
 
         // This is where vanilla moves the bounding box and sets it
-        player.predictedVelocity = new VectorData(collide.clone(), player.predictedVelocity.lastVector, 0);
+        player.predictedVelocity = new VectorData(collide.copy(), player.predictedVelocity.lastVector, 0);
 
-        player.clientVelocity.multiply(player.blockSpeedMultiplier);
+        player.clientVelocity.mul(player.blockSpeedMultiplier);
 
         // Reset stuck speed so it can update
         if (player.stuckSpeedMultiplier.getX() < 0.99) {
@@ -357,7 +357,7 @@ public class MovementTicker {
             // 1.13 and below players can't climb ladders while touching water
             // yes, 1.13 players cannot climb ladders underwater
             if (player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_14) && player.isClimbing) {
-                player.lastWasClimbing = FluidFallingAdjustedMovement.getFluidFallingAdjustedMovement(player, playerGravity, isFalling, player.clientVelocity.clone().setY(0.2D * 0.8F)).getY();
+                player.lastWasClimbing = FluidFallingAdjustedMovement.getFluidFallingAdjustedMovement(player, playerGravity, isFalling, player.clientVelocity.copy().setY(0.2D * 0.8F)).getY();
             }
 
         } else {
@@ -368,14 +368,14 @@ public class MovementTicker {
 
                 // Lava movement changed in 1.16
                 if (player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_16) && player.slightlyTouchingLava) {
-                    player.clientVelocity = player.clientVelocity.multiply(new Vector(0.5D, 0.800000011920929D, 0.5D));
+                    player.clientVelocity = player.clientVelocity.mul(0.5D, 0.800000011920929D, 0.5D);
                     player.clientVelocity = FluidFallingAdjustedMovement.getFluidFallingAdjustedMovement(player, playerGravity, isFalling, player.clientVelocity);
                 } else {
-                    player.clientVelocity.multiply(0.5D);
+                    player.clientVelocity.mul(0.5D);
                 }
 
                 if (player.hasGravity)
-                    player.clientVelocity.add(new Vector(0.0D, -playerGravity / 4.0D, 0.0D));
+                    player.clientVelocity.addY(-playerGravity / 4.0D);
 
             } else if (player.isGliding) {
                 player.friction = 0.99F; // Not vanilla, just useful for other grim stuff

@@ -33,7 +33,7 @@ import com.github.retrooper.packetevents.util.Vector3f;
 import com.github.retrooper.packetevents.util.Vector3i;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -647,7 +647,7 @@ public class BlockPlace {
         Vector look = ReachUtils.getLook(player, player.xRot, player.yRot);
 
         Vector eyePos = new Vector(player.x, player.y + player.getEyeHeight(), player.z);
-        Vector endReachPos = eyePos.clone().add(new Vector(look.getX() * 6, look.getY() * 6, look.getZ() * 6));
+        Vector endReachPos = eyePos.copy().add(look.getX() * 6, look.getY() * 6, look.getZ() * 6);
         Vector intercept = ReachUtils.calculateIntercept(box, eyePos, endReachPos).getFirst();
 
         // Bring this back to relative to the block

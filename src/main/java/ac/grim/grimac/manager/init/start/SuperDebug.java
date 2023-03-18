@@ -12,7 +12,7 @@ import ac.grim.grimac.utils.math.GrimMath;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import lombok.AllArgsConstructor;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.*;
 
@@ -218,13 +218,13 @@ public final class SuperDebug extends Check implements PostPredictionCheck {
         }
 
         // Apply 0.003/0.005 to make numbers more accurate
-        Set<VectorData> set = new HashSet<>(Collections.singletonList(new VectorData(startTick.clone(), VectorData.VectorType.BestVelPicked)));
+        Set<VectorData> set = new HashSet<>(Collections.singletonList(new VectorData(startTick.copy(), VectorData.VectorType.BestVelPicked)));
         new PredictionEngine().applyMovementThreshold(player, set);
         Vector trueStartVel = ((VectorData) set.toArray()[0]).vector;
 
-        Vector clientMovement = getPlayerMathMovement(player, actual.clone().subtract(trueStartVel), location.xRot);
-        Vector simulatedMovement = getPlayerMathMovement(player, predict.vector.clone().subtract(trueStartVel), location.xRot);
-        Vector offset = actual.clone().subtract(predict.vector);
+        Vector clientMovement = getPlayerMathMovement(player, actual.copy().sub(trueStartVel), location.xRot);
+        Vector simulatedMovement = getPlayerMathMovement(player, predict.vector.copy().sub(trueStartVel), location.xRot);
+        Vector offset = actual.copy().sub(predict.vector);
         trueStartVel.add(addition);
         trueStartVel.add(water);
 

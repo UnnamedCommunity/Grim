@@ -1,6 +1,6 @@
 package ac.grim.grimac.utils.collisions.datatypes;
 
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class BoundingBox {
 

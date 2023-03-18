@@ -3,7 +3,7 @@ package ac.grim.grimac.utils.data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 @Getter
 @Setter

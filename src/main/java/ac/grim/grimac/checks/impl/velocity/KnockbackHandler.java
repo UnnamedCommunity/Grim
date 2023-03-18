@@ -13,7 +13,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityVelocity;
 import lombok.Getter;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -75,9 +75,9 @@ public class KnockbackHandler extends Check implements PostPredictionCheck {
         }
         // Uncertain, might be in the future
         if (player.firstBreadKB != null && player.likelyKB == null) {
-            return player.firstBreadKB.vector.clone();
+            return player.firstBreadKB.vector.copy();
         } else if (player.likelyKB != null) { // Known to be in the present
-            return player.likelyKB.vector.clone();
+            return player.likelyKB.vector.copy();
         }
         return null;
     }

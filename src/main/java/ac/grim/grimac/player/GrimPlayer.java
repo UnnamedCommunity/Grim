@@ -41,7 +41,7 @@ import io.github.retrooper.packetevents.util.viaversion.ViaVersionUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -229,12 +229,12 @@ public class GrimPlayer implements GrimUser {
         Set<VectorData> set = new HashSet<>();
 
         if (firstBreadKB != null) {
-            set.add(new VectorData(firstBreadKB.vector.clone(), VectorData.VectorType.Knockback).returnNewModified(VectorData.VectorType.FirstBreadKnockback));
+            set.add(new VectorData(firstBreadKB.vector.copy(), VectorData.VectorType.Knockback).returnNewModified(VectorData.VectorType.FirstBreadKnockback));
         }
 
         if (likelyKB != null) {
             // Allow water pushing to affect knockback
-            set.add(new VectorData(likelyKB.vector.clone(), VectorData.VectorType.Knockback));
+            set.add(new VectorData(likelyKB.vector.copy(), VectorData.VectorType.Knockback));
         }
 
         set.addAll(getPossibleVelocitiesMinusKnockback());
@@ -248,18 +248,18 @@ public class GrimPlayer implements GrimUser {
         // A player cannot swim hop (> 0 y vel) and be on the ground
         // Fixes bug with underwater stepping movement being confused with swim hopping movement
         if (canSwimHop && !onGround) {
-            possibleMovements.add(new VectorData(clientVelocity.clone().setY(0.3f), VectorData.VectorType.Swimhop));
+            possibleMovements.add(new VectorData(clientVelocity.copy().setY(0.3f), VectorData.VectorType.Swimhop));
         }
 
         // If the player has that client sided riptide thing and has colliding with an entity
         // This was determined in the previous tick but whatever just include the 2 ticks around it
         // for a bit of safety as I doubt people will try to bypass this, it would be a very useless cheat
         if (riptideSpinAttackTicks >= 0 && Collections.max(uncertaintyHandler.collidingEntities) > 0) {
-            possibleMovements.add(new VectorData(clientVelocity.clone().multiply(-0.2), VectorData.VectorType.Trident));
+            possibleMovements.add(new VectorData(clientVelocity.copy().mul(-0.2), VectorData.VectorType.Trident));
         }
 
         if (lastWasClimbing != 0) {
-            possibleMovements.add(new VectorData(clientVelocity.clone().setY(lastWasClimbing + baseTickAddition.getY()), VectorData.VectorType.Climbable));
+            possibleMovements.add(new VectorData(clientVelocity.copy().setY(lastWasClimbing + baseTickAddition.getY()), VectorData.VectorType.Climbable));
         }
 
         // Knockback takes precedence over piston pushing in my testing
@@ -267,11 +267,11 @@ public class GrimPlayer implements GrimUser {
         for (VectorData data : new HashSet<>(possibleMovements)) {
             for (BlockFace direction : uncertaintyHandler.slimePistonBounces) {
                 if (direction.getModX() != 0) {
-                    possibleMovements.add(data.returnNewModified(data.vector.clone().setX(direction.getModX()), VectorData.VectorType.SlimePistonBounce));
+                    possibleMovements.add(data.returnNewModified(data.vector.copy().setX(direction.getModX()), VectorData.VectorType.SlimePistonBounce));
                 } else if (direction.getModY() != 0) {
-                    possibleMovements.add(data.returnNewModified(data.vector.clone().setY(direction.getModY()), VectorData.VectorType.SlimePistonBounce));
+                    possibleMovements.add(data.returnNewModified(data.vector.copy().setY(direction.getModY()), VectorData.VectorType.SlimePistonBounce));
                 } else if (direction.getModZ() != 0) {
-                    possibleMovements.add(data.returnNewModified(data.vector.clone().setZ(direction.getModZ()), VectorData.VectorType.SlimePistonBounce));
+                    possibleMovements.add(data.returnNewModified(data.vector.copy().setZ(direction.getModZ()), VectorData.VectorType.SlimePistonBounce));
                 }
             }
         }

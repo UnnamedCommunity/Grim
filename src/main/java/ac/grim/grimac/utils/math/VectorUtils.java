@@ -2,7 +2,6 @@ package ac.grim.grimac.utils.math;
 
 import ac.grim.grimac.utils.collisions.datatypes.SimpleCollisionBox;
 import com.github.retrooper.packetevents.util.Vector3d;
-import org.bukkit.util.Vector;
 
 public class VectorUtils {
     public static Vector cutBoxToVector(Vector vectorToCutTo, Vector min, Vector max) {

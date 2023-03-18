@@ -13,7 +13,7 @@ import com.github.retrooper.packetevents.protocol.world.BlockFace;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateAttributes;
 import org.bukkit.World;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class PlayerBaseTick {
     GrimPlayer player;
@@ -434,7 +434,7 @@ public class PlayerBaseTick {
         // all clients using legacy fluid pushing are not pushed by lava
         if (tag == FluidTag.WATER && vec3.lengthSquared() > 0.0) {
             vec3.normalize();
-            vec3.multiply(multiplier);
+            vec3.mul(multiplier);
             player.baseTickAddWaterPushing(vec3);
             player.baseTickAddVector(vec3);
         }
@@ -483,7 +483,7 @@ public class PlayerBaseTick {
                     if (!player.isFlying) {
                         Vector vec32 = FluidTypeFlowing.getFlow(player, x, y, z);
                         if (d2 < 0.4) {
-                            vec32 = vec32.multiply(d2);
+                            vec32 = vec32.mul(d2);
                         }
                         vec3 = vec3.add(vec32);
                         ++n7;
@@ -494,7 +494,7 @@ public class PlayerBaseTick {
 
         if (vec3.lengthSquared() > 0.0) {
             if (n7 > 0) {
-                vec3 = vec3.multiply(1.0 / n7);
+                vec3 = vec3.mul(1.0 / n7);
             }
 
             if (player.compensatedEntities.getSelf().inVehicle()) {
@@ -504,12 +504,12 @@ public class PlayerBaseTick {
 
             // If the player is using 1.16+ - 1.15 and below don't have lava pushing
             if (tag != FluidTag.LAVA || player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_16)) {
-                vec3 = vec3.multiply(multiplier);
+                vec3 = vec3.mul(multiplier);
                 // Store the vector before handling 0.003, so knockback can use it
                 // However, do this after the multiplier, so that we don't have to recompute it
                 player.baseTickAddWaterPushing(vec3);
                 if (Math.abs(player.clientVelocity.getX()) < 0.003 && Math.abs(player.clientVelocity.getZ()) < 0.003 && vec3.length() < 0.0045000000000000005D) {
-                    vec3 = vec3.normalize().multiply(0.0045000000000000005);
+                    vec3 = vec3.normalize().mul(0.0045000000000000005);
                 }
 
                 player.baseTickAddVector(vec3);

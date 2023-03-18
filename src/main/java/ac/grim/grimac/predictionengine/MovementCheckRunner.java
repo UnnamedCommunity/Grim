@@ -34,7 +34,7 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import com.github.retrooper.packetevents.protocol.world.states.defaulttags.BlockTags;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class MovementCheckRunner extends Check implements PositionCheck {
     // Averaged over 500 predictions (Defaults set slightly above my 3600x results)
@@ -172,7 +172,7 @@ public class MovementCheckRunner extends Check implements PositionCheck {
         }
 
         if (player.vehicleData.lastDummy) {
-            player.clientVelocity.multiply(0.98); // This is vanilla, do not touch
+            player.clientVelocity.mul(0.98); // This is vanilla, do not touch
         }
 
         if (player.vehicleData.wasVehicleSwitch || player.vehicleData.lastDummy) {
@@ -216,7 +216,7 @@ public class MovementCheckRunner extends Check implements PositionCheck {
                 handleTeleport(update);
 
                 if (player.isClimbing) {
-                    Vector ladder = player.clientVelocity.clone().setY(0.2);
+                    Vector ladder = player.clientVelocity.copy().setY(0.2);
                     PredictionEngineNormal.staticVectorEndOfTick(player, ladder);
                     player.lastWasClimbing = ladder.getY();
                 }
@@ -431,7 +431,7 @@ public class MovementCheckRunner extends Check implements PositionCheck {
             //
             // TODO: Re-implement flying support, although LUNAR HAS FLYING CHEATS!!! HOW CAN I CHECK WHEN HALF THE PLAYER BASE IS USING CHEATS???
             player.predictedVelocity = new VectorData(player.actualMovement, VectorData.VectorType.Spectator);
-            player.clientVelocity = player.actualMovement.clone();
+            player.clientVelocity = player.actualMovement.copy();
             player.gravity = 0;
             player.friction = 0.91f;
             PredictionEngineNormal.staticVectorEndOfTick(player, player.clientVelocity);

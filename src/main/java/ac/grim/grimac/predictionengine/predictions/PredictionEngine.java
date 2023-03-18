@@ -14,7 +14,7 @@ import ac.grim.grimac.utils.nmsutil.JumpPower;
 import ac.grim.grimac.utils.nmsutil.Riptide;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.*;
 
@@ -44,7 +44,7 @@ public class PredictionEngine {
         }
 
         Vector inputVector = new Vector(bestPossibleX, 0, bestPossibleZ);
-        inputVector.multiply(0.98F);
+        inputVector.mul(0.98F);
 
         // Simulate float rounding imprecision
         inputVector = new Vector((float) inputVector.getX(), (float) inputVector.getY(), (float) inputVector.getZ());
@@ -93,7 +93,7 @@ public class PredictionEngine {
 
         // Client velocity - before collision and carried into the next tick
         // Predicted velocity - after collision and not carried into the next tick
-        new MovementTickerPlayer(player).move(player.clientVelocity.clone(), player.predictedVelocity.vector);
+        new MovementTickerPlayer(player).move(player.clientVelocity.copy(), player.predictedVelocity.vector);
         endOfTick(player, player.gravity);
     }
 
@@ -107,7 +107,7 @@ public class PredictionEngine {
 
         VectorData bestCollisionVel = null;
         Vector beforeCollisionMovement = null;
-        Vector originalClientVel = player.clientVelocity.clone();
+        Vector originalClientVel = player.clientVelocity.copy();
 
         SimpleCollisionBox originalBB = player.boundingBox;
         // 0.03 doesn't exist with vehicles, thank god
@@ -198,7 +198,7 @@ public class PredictionEngine {
 
         assert beforeCollisionMovement != null;
 
-        player.clientVelocity = beforeCollisionMovement.clone();
+        player.clientVelocity = beforeCollisionMovement.copy();
         player.predictedVelocity = bestCollisionVel; // Set predicted vel to get the vector types later in the move method
         player.boundingBox = originalBB;
 
@@ -291,7 +291,7 @@ public class PredictionEngine {
 
         if (player.packetStateData.tryingToRiptide) {
             Vector riptideAddition = Riptide.getRiptideVelocity(player);
-            pointThreePossibilities.add(new VectorData(player.clientVelocity.clone().add(riptideAddition), new VectorData(new Vector(), VectorData.VectorType.ZeroPointZeroThree), VectorData.VectorType.Trident));
+            pointThreePossibilities.add(new VectorData(player.clientVelocity.copy().add(riptideAddition), new VectorData(new Vector(), VectorData.VectorType.ZeroPointZeroThree), VectorData.VectorType.Trident));
         }
 
         possibleVelocities.addAll(applyInputsToVelocityPossibilities(player, pointThreePossibilities, speed));
@@ -312,9 +312,9 @@ public class PredictionEngine {
             // Water pushing movement is affected by initial velocity due to 0.003 eating pushing in the past
             if (vectorData.isKnockback() && player.baseTickWaterPushing.lengthSquared() != 0) {
                 if (player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_13)) {
-                    Vector vec3 = player.baseTickWaterPushing.clone();
+                    Vector vec3 = player.baseTickWaterPushing.copy();
                     if (Math.abs(vectorData.vector.getX()) < 0.003 && Math.abs(vectorData.vector.getZ()) < 0.003 && player.baseTickWaterPushing.length() < 0.0045000000000000005D) {
-                        vec3 = vec3.normalize().multiply(0.0045000000000000005);
+                        vec3 = vec3.normalize().mul(0.0045000000000000005);
                     }
 
                     vectorData.vector = vectorData.vector.add(vec3);
@@ -333,7 +333,7 @@ public class PredictionEngine {
 
         if (player.packetStateData.tryingToRiptide) {
             Vector riptideAddition = Riptide.getRiptideVelocity(player);
-            velocities.add(new VectorData(player.clientVelocity.clone().add(riptideAddition), VectorData.VectorType.Trident));
+            velocities.add(new VectorData(player.clientVelocity.copy().add(riptideAddition), VectorData.VectorType.Trident));
         }
 
         // Fluid pushing is done BEFORE 0.003
@@ -354,14 +354,14 @@ public class PredictionEngine {
         if (!player.compensatedEntities.getSelf().inVehicle()) return;
 
         for (VectorData vectorData : data) {
-            vectorData.vector = vectorData.vector.clone().multiply(0.98);
+            vectorData.vector = vectorData.vector.copy().mul(0.98);
         }
     }
 
     private void addAttackSlowToPossibilities(GrimPlayer player, Set<VectorData> velocities) {
         for (int x = 1; x <= Math.min(player.maxPlayerAttackSlow, 5); x++) {
             for (VectorData data : new HashSet<>(velocities)) {
-                velocities.add(data.returnNewModified(data.vector.clone().multiply(new Vector(0.6, 1, 0.6)), VectorData.VectorType.AttackSlow));
+                velocities.add(data.returnNewModified(data.vector.copy().mulXZ(0.6, 0.6), VectorData.VectorType.AttackSlow));
             }
         }
     }
@@ -394,12 +394,12 @@ public class PredictionEngine {
     public void addExplosionToPossibilities(GrimPlayer player, Set<VectorData> existingVelocities) {
         for (VectorData vector : new HashSet<>(existingVelocities)) {
             if (player.likelyExplosions != null) {
-                existingVelocities.add(new VectorData(vector.vector.clone().add(player.likelyExplosions.vector), vector, VectorData.VectorType.Explosion));
+                existingVelocities.add(new VectorData(vector.vector.copy().add(player.likelyExplosions.vector), vector, VectorData.VectorType.Explosion));
             }
 
             if (player.firstBreadExplosion != null) {
-                existingVelocities.add(new VectorData(vector.vector.clone().add(player.firstBreadExplosion.vector), vector, VectorData.VectorType.Explosion)
-                        .returnNewModified(vector.vector.clone().add(player.firstBreadExplosion.vector), VectorData.VectorType.FirstBreadExplosion));
+                existingVelocities.add(new VectorData(vector.vector.copy().add(player.firstBreadExplosion.vector), vector, VectorData.VectorType.Explosion)
+                        .returnNewModified(vector.vector.copy().add(player.firstBreadExplosion.vector), VectorData.VectorType.FirstBreadExplosion));
             }
         }
     }
@@ -519,8 +519,8 @@ public class PredictionEngine {
         Vector min = new Vector(player.uncertaintyHandler.xNegativeUncertainty - additionHorizontal, -bonusY + player.uncertaintyHandler.yNegativeUncertainty, player.uncertaintyHandler.zNegativeUncertainty - additionHorizontal);
         Vector max = new Vector(player.uncertaintyHandler.xPositiveUncertainty + additionHorizontal, bonusY + player.uncertaintyHandler.yPositiveUncertainty, player.uncertaintyHandler.zPositiveUncertainty + additionHorizontal);
 
-        Vector minVector = vector.vector.clone().add(min.subtract(uncertainty));
-        Vector maxVector = vector.vector.clone().add(max.add(uncertainty));
+        Vector minVector = vector.vector.copy().add(min.sub(uncertainty));
+        Vector maxVector = vector.vector.copy().add(max.add(uncertainty));
 
         // Handle the player landing within 0.03 movement, which resets Y velocity
         if (player.uncertaintyHandler.onGroundUncertain && vector.vector.getY() < 0) {
@@ -714,9 +714,9 @@ public class PredictionEngine {
                     if (loopSlowed == 1 && !possibleLastTickOutput.isZeroPointZeroThree()) continue;
                     for (int x = -1; x <= 1; x++) {
                         for (int z = zMin; z <= 1; z++) {
-                            VectorData result = new VectorData(possibleLastTickOutput.vector.clone().add(getMovementResultFromInput(player, transformInputsToVector(player, new Vector(x, 0, z)), speed, player.xRot)), possibleLastTickOutput, VectorData.VectorType.InputResult);
-                            result = result.returnNewModified(result.vector.clone().multiply(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
-                            result = result.returnNewModified(handleOnClimbable(result.vector.clone(), player), VectorData.VectorType.Climbable);
+                            VectorData result = new VectorData(possibleLastTickOutput.vector.copy().add(getMovementResultFromInput(player, transformInputsToVector(player, new Vector(x, 0, z)), speed, player.xRot)), possibleLastTickOutput, VectorData.VectorType.InputResult);
+                            result = result.returnNewModified(result.vector.copy().mul(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
+                            result = result.returnNewModified(handleOnClimbable(result.vector.copy(), player), VectorData.VectorType.Climbable);
                             // Signal that we need to flip sneaking bounding box
                             if (loopUsingItem == 1)
                                 result = result.returnNewModified(result.vector, VectorData.VectorType.Flip_Use_Item);

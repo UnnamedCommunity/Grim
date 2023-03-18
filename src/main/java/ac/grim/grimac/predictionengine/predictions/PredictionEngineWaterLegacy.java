@@ -2,7 +2,7 @@ package ac.grim.grimac.predictionengine.predictions;
 
 import ac.grim.grimac.player.GrimPlayer;
 import ac.grim.grimac.utils.data.VectorData;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,7 +34,7 @@ public class PredictionEngineWaterLegacy extends PredictionEngine {
             }
 
             lengthSquared = swimmingSpeed / lengthSquared;
-            inputVector.multiply(lengthSquared);
+            inputVector.mul(lengthSquared);
             float sinResult = player.trigHandler.sin(player.xRot * 0.017453292F);
             float cosResult = player.trigHandler.cos(player.xRot * 0.017453292F);
 
@@ -49,7 +49,7 @@ public class PredictionEngineWaterLegacy extends PredictionEngine {
     @Override
     public void addJumpsToPossibilities(GrimPlayer player, Set<VectorData> existingVelocities) {
         for (VectorData vector : new HashSet<>(existingVelocities)) {
-            existingVelocities.add(new VectorData(vector.vector.clone().add(new Vector(0, 0.04f, 0)), vector, VectorData.VectorType.Jump));
+            existingVelocities.add(new VectorData(vector.vector.copy().addY(0.04), vector, VectorData.VectorType.Jump));
         }
     }
 
@@ -58,7 +58,7 @@ public class PredictionEngineWaterLegacy extends PredictionEngine {
         super.endOfTick(player, playerGravity);
 
         for (VectorData vector : player.getPossibleVelocitiesMinusKnockback()) {
-            vector.vector.multiply(new Vector(swimmingFriction, 0.8F, swimmingFriction));
+            vector.vector.mul(swimmingFriction, 0.8F, swimmingFriction);
 
             // Gravity
             vector.vector.setY(vector.vector.getY() - 0.02D);

@@ -9,7 +9,7 @@ import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState
 import com.github.retrooper.packetevents.protocol.world.states.defaulttags.BlockTags;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 public class FluidTypeFlowing {
     public static Vector getFlow(GrimPlayer player, int originalX, int originalY, int originalZ) {
@@ -61,7 +61,7 @@ public class FluidTypeFlowing {
         if ((state.getType() == StateTypes.WATER || state.getType() == StateTypes.LAVA) && state.getLevel() >= 8) {
             for (BlockFace enumdirection : new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST}) {
                 if (isSolidFace(player, originalX, originalY, originalZ, enumdirection) || isSolidFace(player, originalX, originalY + 1, originalZ, enumdirection)) {
-                    vec3d = normalizeVectorWithoutNaN(vec3d).add(new Vector(0.0D, -6.0D, 0.0D));
+                    vec3d = normalizeVectorWithoutNaN(vec3d).addY(-6.0D);
                     break;
                 }
             }
@@ -152,7 +152,7 @@ public class FluidTypeFlowing {
 
     private static Vector normalizeVectorWithoutNaN(Vector vector) {
         double var0 = vector.length();
-        return var0 < 1.0E-4 ? new Vector() : vector.multiply(1 / var0);
+        return var0 < 1.0E-4 ? new Vector() : vector.mul(1 / var0);
     }
 
     public static boolean isEmpty(GrimPlayer player, int x, int y, int z) {

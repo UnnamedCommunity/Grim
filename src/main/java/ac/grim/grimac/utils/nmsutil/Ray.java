@@ -2,10 +2,10 @@ package ac.grim.grimac.utils.nmsutil;
 
 import ac.grim.grimac.player.GrimPlayer;
 import ac.grim.grimac.utils.data.Pair;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 // Copied directly from Hawk
-public class Ray implements Cloneable {
+public class Ray {
 
     private Vector origin;
     private Vector direction;
@@ -33,36 +33,21 @@ public class Ray implements Cloneable {
         return vector;
     }
 
-    public Ray clone() {
-        Ray clone;
-        try {
-            clone = (Ray) super.clone();
-            clone.origin = this.origin.clone();
-            clone.direction = this.direction.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public String toString() {
         return "origin: " + origin + " direction: " + direction;
     }
 
     public Vector getPointAtDistance(double distance) {
-        Vector dir = new Vector(direction.getX(), direction.getY(), direction.getZ());
-        Vector orig = new Vector(origin.getX(), origin.getY(), origin.getZ());
-        return orig.add(dir.multiply(distance));
+        return origin.copy().add(direction.copy().mul(distance));
     }
 
     //https://en.wikipedia.org/wiki/Skew_lines#Nearest_Points
     public Pair<Vector, Vector> closestPointsBetweenLines(Ray other) {
-        Vector n1 = direction.clone().crossProduct(other.direction.clone().crossProduct(direction));
-        Vector n2 = other.direction.clone().crossProduct(direction.clone().crossProduct(other.direction));
+        Vector n1 = direction.copy().cross(other.direction.copy().cross(direction));
+        Vector n2 = other.direction.copy().cross(direction.copy().cross(other.direction));
 
-        Vector c1 = origin.clone().add(direction.clone().multiply(other.origin.clone().subtract(origin).dot(n2) / direction.dot(n2)));
-        Vector c2 = other.origin.clone().add(other.direction.clone().multiply(origin.clone().subtract(other.origin).dot(n1) / other.direction.dot(n1)));
+        Vector c1 = origin.copy().add(direction.copy().mul(other.origin.copy().sub(origin).dot(n2) / direction.dot(n2)));
+        Vector c2 = other.origin.copy().add(other.direction.copy().mul(origin.copy().sub(other.origin).dot(n1) / other.direction.dot(n1)));
 
         return new Pair<>(c1, c2);
     }

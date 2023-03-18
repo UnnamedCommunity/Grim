@@ -14,7 +14,7 @@ import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerExplosion;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -199,7 +199,7 @@ public class ExplosionHandler extends Check implements PostPredictionCheck {
         while (data != null) {
             if (data.transaction == transactionID) { // First bread explosion
                 if (lastExplosionsKnownTaken != null)
-                    firstBreadAddedExplosion = new VelocityData(-1, data.transaction, data.isSetback, lastExplosionsKnownTaken.vector.clone().add(data.vector));
+                    firstBreadAddedExplosion = new VelocityData(-1, data.transaction, data.isSetback, lastExplosionsKnownTaken.vector.copy().add(data.vector));
                 else
                     firstBreadAddedExplosion = new VelocityData(-1, data.transaction, data.isSetback, data.vector);
                 break; // All knockback after this will have not been applied

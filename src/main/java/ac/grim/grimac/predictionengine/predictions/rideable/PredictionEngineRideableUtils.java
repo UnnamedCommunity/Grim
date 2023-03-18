@@ -6,7 +6,7 @@ import ac.grim.grimac.predictionengine.predictions.PredictionEngineNormal;
 import ac.grim.grimac.utils.data.VectorData;
 import ac.grim.grimac.utils.data.packetentity.PacketEntityHorse;
 import ac.grim.grimac.utils.nmsutil.JumpPower;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class PredictionEngineRideableUtils {
             for (VectorData vectorData : possibleVectors) {
                 vectorData.vector.setY(d1);
                 if (f1 > 0.0F) {
-                    vectorData.vector.add(new Vector(-0.4F * f2 * player.vehicleData.horseJump, 0.0D, 0.4F * f3 * player.vehicleData.horseJump));
+                    vectorData.vector.addXZ(-0.4F * f2 * player.vehicleData.horseJump, 0.4F * f3 * player.vehicleData.horseJump);
                 }
             }
 
@@ -73,16 +73,16 @@ public class PredictionEngineRideableUtils {
         List<VectorData> returnVectors = new ArrayList<>();
 
         for (VectorData possibleLastTickOutput : possibleVectors) {
-            VectorData result = new VectorData(possibleLastTickOutput.vector.clone().add(new PredictionEngine().getMovementResultFromInput(player, movementVector, speed, player.xRot)), possibleLastTickOutput, VectorData.VectorType.InputResult);
-            result = result.returnNewModified(result.vector.clone().multiply(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
-            result = result.returnNewModified(new PredictionEngineNormal().handleOnClimbable(result.vector.clone(), player), VectorData.VectorType.Climbable);
+            VectorData result = new VectorData(possibleLastTickOutput.vector.copy().add(new PredictionEngine().getMovementResultFromInput(player, movementVector, speed, player.xRot)), possibleLastTickOutput, VectorData.VectorType.InputResult);
+            result = result.returnNewModified(result.vector.copy().mul(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
+            result = result.returnNewModified(new PredictionEngineNormal().handleOnClimbable(result.vector.copy(), player), VectorData.VectorType.Climbable);
             returnVectors.add(result);
 
             // This is the laziest way to reduce false positives such as horse rearing
             // No bypasses can ever be derived from this, so why not?
-            result = new VectorData(possibleLastTickOutput.vector.clone(), possibleLastTickOutput, VectorData.VectorType.InputResult);
-            result = result.returnNewModified(result.vector.clone().multiply(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
-            result = result.returnNewModified(new PredictionEngineNormal().handleOnClimbable(result.vector.clone(), player), VectorData.VectorType.Climbable);
+            result = new VectorData(possibleLastTickOutput.vector.copy(), possibleLastTickOutput, VectorData.VectorType.InputResult);
+            result = result.returnNewModified(result.vector.copy().mul(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
+            result = result.returnNewModified(new PredictionEngineNormal().handleOnClimbable(result.vector.copy(), player), VectorData.VectorType.Climbable);
             returnVectors.add(result);
         }
 

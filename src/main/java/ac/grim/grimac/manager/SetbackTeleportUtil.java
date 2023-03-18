@@ -31,7 +31,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.util.Vector;
+import ac.grim.grimac.utils.math.Vector;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,7 +65,7 @@ public class SetbackTeleportUtil extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(final PredictionComplete predictionComplete) {
         // Grab friction now when we know player on ground and other variables
-        Vector afterTickFriction = player.clientVelocity.clone();
+        Vector afterTickFriction = player.clientVelocity.copy();
 
         // We must first check if the player has accepted their setback
         // If the setback isn't complete, then this position is illegitimate
@@ -121,11 +121,11 @@ public class SetbackTeleportUtil extends Check implements PostPredictionCheck {
         if (player.wasTouchingWater) {
             PredictionEngineWater.staticVectorEndOfTick(player, vector, 0.8F, player.gravity, true);
         } else if (player.wasTouchingLava) {
-            vector.multiply(0.5D);
+            vector.mul(0.5D);
             if (player.hasGravity)
-                vector.add(new Vector(0.0D, -player.gravity / 4.0D, 0.0D));
+                vector.addY(-player.gravity / 4.0D);
         } else if (player.isGliding) {
-            PredictionEngineElytra.getElytraMovement(player, vector, ReachUtils.getLook(player, player.xRot, player.yRot)).multiply(player.stuckSpeedMultiplier).multiply(new Vector(0.99F, 0.98F, 0.99F));
+            PredictionEngineElytra.getElytraMovement(player, vector, ReachUtils.getLook(player, player.xRot, player.yRot)).mul(player.stuckSpeedMultiplier).mul(0.99F, 0.98F, 0.99F);
             vector.setY(vector.getY() - 0.05); // Make the player fall a bit
         } else { // Gliding doesn't have friction, we handle it differently
             PredictionEngineNormal.staticVectorEndOfTick(player, vector); // Lava and normal movement
@@ -146,7 +146,7 @@ public class SetbackTeleportUtil extends Check implements PostPredictionCheck {
             lastWorldResync = System.currentTimeMillis();
         }
 
-        Vector clientVel = lastKnownGoodPosition.vector.clone();
+        Vector clientVel = lastKnownGoodPosition.vector.copy();
 
         Vector futureKb = player.checkManager.getKnockbackHandler().getFutureKnockback();
         Vector futureExplosion = player.checkManager.getExplosionHandler().getFutureExplosion();
