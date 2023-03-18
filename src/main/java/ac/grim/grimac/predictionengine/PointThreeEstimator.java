@@ -243,21 +243,20 @@ public class PointThreeEstimator {
         isNearFluid = false;
 
         // Check for flowing water
-        Collisions.hasMaterial(player, pointThreeBox, (pair) -> {
-            WrappedBlockState state = pair.getFirst();
+        Collisions.hasMaterial(player, pointThreeBox, (state, position) -> {
             if (Materials.isClimbable(state.getType()) || (state.getType() == StateTypes.POWDER_SNOW && !player.compensatedEntities.getSelf().inVehicle() && player.getInventory().getBoots().getType() == ItemTypes.LEATHER_BOOTS)) {
                 isNearClimbable = true;
             }
 
             if (BlockTags.TRAPDOORS.contains(state.getType())) {
-                isNearClimbable = isNearClimbable || Collisions.trapdoorUsableAsLadder(player, pair.getSecond().getX(), pair.getSecond().getY(), pair.getSecond().getZ(), state);
+                isNearClimbable = isNearClimbable || Collisions.trapdoorUsableAsLadder(player, position.getX(), position.getY(), position.getZ(), state);
             }
 
             if (state.getType() == StateTypes.BUBBLE_COLUMN) {
                 isNearBubbleColumn = true;
             }
 
-            if (Materials.isWater(player.getClientVersion(), pair.getFirst()) || pair.getFirst().getType() == StateTypes.LAVA) {
+            if (Materials.isWater(player.getClientVersion(), state) || state.getType() == StateTypes.LAVA) {
                 isNearFluid = true;
             }
 
