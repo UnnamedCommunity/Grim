@@ -1,54 +1,37 @@
 package ac.grim.grimac.utils.data;
 
-import lombok.Getter;
 import org.bukkit.util.Vector;
 
 import java.util.Objects;
 
 public class VectorData {
-    public VectorType vectorType;
     public VectorData lastVector;
-    public VectorData preUncertainty;
     public Vector vector;
 
-    @Getter
-    private boolean isKnockback, firstBreadKb, isExplosion, firstBreadExplosion, isTrident, isZeroPointZeroThree, isSwimHop, isFlipSneaking, isFlipItem, isJump, isAttackSlow = false;
+    private final int debuggingData;
 
     // For handling replacing the type of vector it is while keeping data
-    public VectorData(Vector vector, VectorData lastVector, VectorType vectorType) {
+    public VectorData(Vector vector, VectorData lastVector, int vectorType) {
         this.vector = vector;
         this.lastVector = lastVector;
-        this.vectorType = vectorType;
 
         if (lastVector != null) {
-            isKnockback = lastVector.isKnockback;
-            firstBreadKb = lastVector.firstBreadKb;
-            isExplosion = lastVector.isExplosion;
-            firstBreadExplosion = lastVector.firstBreadExplosion;
-            isTrident = lastVector.isTrident;
-            isZeroPointZeroThree = lastVector.isZeroPointZeroThree;
-            isSwimHop = lastVector.isSwimHop;
-            isFlipSneaking = lastVector.isFlipSneaking;
-            isFlipItem = lastVector.isFlipItem;
-            isJump = lastVector.isJump;
-            preUncertainty = lastVector.preUncertainty;
-            isAttackSlow = lastVector.isAttackSlow;
+            this.debuggingData = lastVector.debuggingData | vectorType;
+        } else {
+            this.debuggingData = vectorType;
         }
-
-        addVectorType(vectorType);
     }
 
-    public VectorData(Vector vector, VectorType vectorType) {
+    public VectorData(Vector vector, int vectorType) {
         this.vector = vector;
-        this.vectorType = vectorType;
-        addVectorType(vectorType);
+        this.debuggingData = vectorType;
     }
 
-    public VectorData returnNewModified(VectorType type) {
+    public VectorData returnNewModified(int type) {
         return new VectorData(vector, this, type);
     }
 
-    public VectorData returnNewModified(Vector newVec, VectorType type) {
+    public VectorData returnNewModified(Vector newVec, int type) {
         return new VectorData(newVec, this, type);
     }
 
@@ -57,56 +40,62 @@ public class VectorData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VectorData that = (VectorData) o;
-        return isKnockback == that.isKnockback && firstBreadKb == that.firstBreadKb && isExplosion == that.isExplosion && firstBreadExplosion == that.firstBreadExplosion && isTrident == that.isTrident && isZeroPointZeroThree == that.isZeroPointZeroThree && isSwimHop == that.isSwimHop && isFlipSneaking == that.isFlipSneaking && isFlipItem == that.isFlipItem && isJump == that.isJump && isAttackSlow == that.isAttackSlow && vectorType == that.vectorType && Objects.equals(lastVector, that.lastVector) && Objects.equals(preUncertainty, that.preUncertainty) && Objects.equals(vector, that.vector);
+        return Objects.equals(vector, that.vector);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(vectorType, lastVector, preUncertainty, vector, isKnockback, firstBreadKb, isExplosion, firstBreadExplosion, isTrident, isZeroPointZeroThree, isSwimHop, isFlipSneaking, isFlipItem, isJump, isAttackSlow);
+        return this.vector != null ? this.vector.hashCode() : 0;
     }
 
-    private void addVectorType(VectorType type) {
-        switch (type) {
-            case Knockback:
-                isKnockback = true;
-                break;
-            case FirstBreadKnockback:
-                firstBreadKb = true;
-                break;
-            case Explosion:
-                isExplosion = true;
-                break;
-            case FirstBreadExplosion:
-                firstBreadExplosion = true;
-                break;
-            case Trident:
-                isTrident = true;
-                break;
-            case ZeroPointZeroThree:
-                isZeroPointZeroThree = true;
-                break;
-            case Swimhop:
-                isSwimHop = true;
-                break;
-            case Flip_Sneaking:
-                isFlipSneaking = true;
-                break;
-            case Flip_Use_Item:
-                isFlipItem = true;
-                break;
-            case Jump:
-                isJump = true;
-                break;
-            case AttackSlow:
-                isAttackSlow = true;
-                break;
-        }
+    public boolean isKnockback() {
+        return (debuggingData & VectorType.Knockback) != 0;
+    }
+
+    public boolean isFirstBreadKb() {
+        return (debuggingData & VectorType.FirstBreadKnockback) != 0;
+    }
+
+    public boolean isExplosion() {
+        return (debuggingData & VectorType.Explosion) != 0;
+    }
+
+    public boolean isFirstBreadExplosion() {
+        return (debuggingData & VectorType.FirstBreadExplosion) != 0;
+    }
+
+    public boolean isTrident() {
+        return (debuggingData & VectorType.Trident) != 0;
+    }
+
+    public boolean isZeroPointZeroThree() {
+        return (debuggingData & VectorType.ZeroPointZeroThree) != 0;
+    }
+
+    public boolean isSwimHop() {
+        return (debuggingData & VectorType.Swimhop) != 0;
+    }
+
+    public boolean isFlipSneaking() {
+        return (debuggingData & VectorType.Flip_Sneaking) != 0;
+    }
+
+    public boolean isFlipItem() {
+        return (debuggingData & VectorType.Flip_Use_Item) != 0;
+    }
+
+    public boolean isJump() {
+        return (debuggingData & VectorType.Jump) != 0;
+    }
+
+    public boolean isAttackSlow() {
+        return (debuggingData & VectorType.AttackSlow) != 0;
     }
 
     @Override
     public String toString() {
         return "VectorData{" +
-                "pointThree=" + isZeroPointZeroThree +
+                "pointThree=" + isZeroPointZeroThree() +
                 ", vector=" + vector +
                 '}';
     }
@@ -114,34 +103,35 @@ public class VectorData {
     // TODO: This is a stupid idea that slows everything down, remove it! There are easier ways to debug grim.
     // Would make false positives really easy to fix
     // But seriously, we could trace the code to find the mistake
-    public enum VectorType {
-        Normal,
-        Swimhop,
-        Climbable,
-        Knockback,
-        FirstBreadKnockback,
-        HackyClimbable,
-        Teleport,
-        SkippedTicks,
-        Explosion,
-        FirstBreadExplosion,
-        InputResult,
-        StuckMultiplier,
-        Spectator,
-        Dead,
-        Jump,
-        SurfaceSwimming,
-        SwimmingSpace,
-        BestVelPicked,
-        Firework,
-        Lenience,
-        TridentJump,
-        Trident,
-        SlimePistonBounce,
-        Entity_Pushing,
-        ZeroPointZeroThree,
-        AttackSlow,
-        Flip_Sneaking,
-        Flip_Use_Item
+    public static final class VectorType {
+        public static final int Normal = 0;
+        public static final int Climbable = 0;
+        public static final int HackyClimbable = 0;
+        public static final int Teleport = 0;
+        public static final int SkippedTicks = 0;
+        public static final int InputResult = 0;
+        public static final int StuckMultiplier = 0;
+        public static final int Spectator = 0;
+        public static final int Dead = 0;
+        public static final int SurfaceSwimming = 0;
+        public static final int SwimmingSpace = 0;
+        public static final int BestVelPicked = 0;
+        public static final int Firework = 0;
+        public static final int Lenience = 0;
+        public static final int TridentJump = 0;
+        public static final int SlimePistonBounce = 0;
+        public static final int Entity_Pushing = 0;
+
+        public static final int Knockback = 1 << 0;
+        public static final int FirstBreadKnockback = 1 << 1;
+        public static final int Explosion = 1 << 2;
+        public static final int FirstBreadExplosion = 1 << 3;
+        public static final int Trident = 1 << 4;
+        public static final int ZeroPointZeroThree = 1 << 5;
+        public static final int Swimhop = 1 << 6;
+        public static final int Flip_Sneaking = 1 << 7;
+        public static final int Flip_Use_Item = 1 << 8;
+        public static final int Jump = 1 << 9;
+        public static final int AttackSlow = 1 << 10;
     }
 }

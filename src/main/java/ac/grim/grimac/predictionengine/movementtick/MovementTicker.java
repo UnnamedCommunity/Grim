@@ -160,7 +160,7 @@ public class MovementTicker {
         }
 
         // This is where vanilla moves the bounding box and sets it
-        player.predictedVelocity = new VectorData(collide.clone(), player.predictedVelocity.lastVector, player.predictedVelocity.vectorType);
+        player.predictedVelocity = new VectorData(collide.clone(), player.predictedVelocity.lastVector, 0);
 
         player.clientVelocity.multiply(player.blockSpeedMultiplier);
 

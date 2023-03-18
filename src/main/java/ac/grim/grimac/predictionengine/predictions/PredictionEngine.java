@@ -181,7 +181,6 @@ public class PredictionEngine {
 
             if (resultAccuracy < bestInput) {
                 bestCollisionVel = clientVelAfterInput.returnNewModified(outputVel, VectorData.VectorType.BestVelPicked);
-                bestCollisionVel.preUncertainty = clientVelAfterInput;
                 beforeCollisionMovement = primaryPushMovement;
 
                 // We basically want to avoid falsing ground spoof, try to find a vector that works
