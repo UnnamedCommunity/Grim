@@ -57,7 +57,7 @@ public class CompensatedWorld {
     public static final ClientVersion blockVersion = PacketEvents.getAPI().getServerManager().getVersion().toClientVersion();
     private static final WrappedBlockState airData = WrappedBlockState.getByGlobalId(blockVersion, 0);
     public final GrimPlayer player;
-    public final Map<Long, Column> chunks;
+    public final Long2ObjectOpenHashMap<Column> chunks;
     // Packet locations for blocks
     public Set<PistonData> activePistons = new HashSet<>();
     public Set<ShulkerData> openShulkerBoxes = new HashSet<>();
