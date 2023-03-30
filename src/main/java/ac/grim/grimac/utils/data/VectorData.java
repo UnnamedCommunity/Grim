@@ -5,10 +5,20 @@ import ac.grim.grimac.utils.math.Vector;
 import java.util.Objects;
 
 public class VectorData {
+    public static final class MoveVectorData extends VectorData {
+        public final int x, z;
+
+        public MoveVectorData(Vector vector, VectorData lastVector, int x, int z) {
+            super(vector, lastVector, VectorData.VectorType.PlayerInput | (x == 0 && z == 0 ? VectorData.VectorType.WithoutInputResult : VectorData.VectorType.InputResult));
+            this.x = x;
+            this.z = z;
+        }
+    }
+
     public VectorData lastVector;
     public Vector vector;
 
-    private final int debuggingData;
+    private final int types;
 
     // For handling replacing the type of vector it is while keeping data
     public VectorData(Vector vector, VectorData lastVector, int vectorType) {
@@ -16,15 +26,15 @@ public class VectorData {
         this.lastVector = lastVector;
 
         if (lastVector != null) {
-            this.debuggingData = lastVector.debuggingData | vectorType;
+            this.types = lastVector.types | vectorType;
         } else {
-            this.debuggingData = vectorType;
+            this.types = vectorType;
         }
     }
 
     public VectorData(Vector vector, int vectorType) {
         this.vector = vector;
-        this.debuggingData = vectorType;
+        this.types = vectorType;
     }
 
     public VectorData returnNewModified(int type) {
@@ -49,59 +59,66 @@ public class VectorData {
     }
 
     public boolean isKnockback() {
-        return (debuggingData & VectorType.Knockback) != 0;
+        return (types & VectorType.Knockback) != 0;
     }
 
     public boolean isFirstBreadKb() {
-        return (debuggingData & VectorType.FirstBreadKnockback) != 0;
+        return (types & VectorType.FirstBreadKnockback) != 0;
     }
 
     public boolean isExplosion() {
-        return (debuggingData & VectorType.Explosion) != 0;
+        return (types & VectorType.Explosion) != 0;
     }
 
     public boolean isFirstBreadExplosion() {
-        return (debuggingData & VectorType.FirstBreadExplosion) != 0;
+        return (types & VectorType.FirstBreadExplosion) != 0;
     }
 
     public boolean isTrident() {
-        return (debuggingData & VectorType.Trident) != 0;
+        return (types & VectorType.Trident) != 0;
     }
 
     public boolean isZeroPointZeroThree() {
-        return (debuggingData & VectorType.ZeroPointZeroThree) != 0;
+        return (types & VectorType.ZeroPointZeroThree) != 0;
     }
 
     public boolean isSwimHop() {
-        return (debuggingData & VectorType.Swimhop) != 0;
+        return (types & VectorType.Swimhop) != 0;
     }
 
     public boolean isFlipSneaking() {
-        return (debuggingData & VectorType.Flip_Sneaking) != 0;
+        return (types & VectorType.Flip_Sneaking) != 0;
     }
 
     public boolean isFlipItem() {
-        return (debuggingData & VectorType.Flip_Use_Item) != 0;
+        return (types & VectorType.Flip_Use_Item) != 0;
     }
 
     public boolean isJump() {
-        return (debuggingData & VectorType.Jump) != 0;
+        return (types & VectorType.Jump) != 0;
     }
 
     public boolean isAttackSlow() {
-        return (debuggingData & VectorType.AttackSlow) != 0;
+        return (types & VectorType.AttackSlow) != 0;
+    }
+
+    public boolean isPlayerInput() {
+        return (types & VectorType.PlayerInput) != 0;
+    }
+
+    public boolean isWithoutInputResult() {
+        return (types & VectorType.WithoutInputResult) != 0;
     }
 
     public int getScore() {
         int score = 0;
-        if (this.debuggingData != 0) {
-            if (isExplosion()) score -= 5;
-            if (isKnockback()) score -= 5;
-            if (isFirstBreadExplosion()) score += 1;
-            if (isFirstBreadKb()) score += 1;
-            if (isFlipItem()) score += 3;
-            if (isZeroPointZeroThree()) score -= 1;
-        }
+        if (isExplosion()) score -= 5;
+        if (isKnockback()) score -= 5;
+        if (isFirstBreadExplosion()) score += 1;
+        if (isFirstBreadKb()) score += 1;
+        if (isFlipItem()) score += 3;
+        if (isZeroPointZeroThree()) score -= 1;
+        if (isWithoutInputResult()) score -= 1;
         return score;
     }
 
@@ -122,7 +139,6 @@ public class VectorData {
         public static final int HackyClimbable = 0;
         public static final int Teleport = 0;
         public static final int SkippedTicks = 0;
-        public static final int InputResult = 0;
         public static final int StuckMultiplier = 0;
         public static final int Spectator = 0;
         public static final int Dead = 0;
@@ -146,5 +162,8 @@ public class VectorData {
         public static final int Flip_Use_Item = 1 << 8;
         public static final int Jump = 1 << 9;
         public static final int AttackSlow = 1 << 10;
+        public static final int PlayerInput = 1 << 11;
+        public static final int InputResult = 1 << 12;
+        public static final int WithoutInputResult = 1 << 13;
     }
 }

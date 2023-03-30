@@ -6,6 +6,7 @@ import ac.grim.grimac.predictionengine.movementtick.MovementTickerPlayer;
 import ac.grim.grimac.utils.collisions.datatypes.SimpleCollisionBox;
 import ac.grim.grimac.utils.data.Pair;
 import ac.grim.grimac.utils.data.VectorData;
+import ac.grim.grimac.utils.data.VectorData.MoveVectorData;
 import ac.grim.grimac.utils.math.GrimMath;
 import ac.grim.grimac.utils.math.VectorUtils;
 import ac.grim.grimac.utils.nmsutil.Collisions;
@@ -678,7 +679,7 @@ public class PredictionEngine {
                     if (loopSlowed == 1 && !possibleLastTickOutput.isZeroPointZeroThree()) continue;
                     for (int x = -1; x <= 1; x++) {
                         for (int z = zMin; z <= 1; z++) {
-                            VectorData result = new VectorData(possibleLastTickOutput.vector.copy().add(getMovementResultFromInput(player, transformInputsToVector(player, new Vector(x, 0, z)), speed, player.xRot)), possibleLastTickOutput, VectorData.VectorType.InputResult);
+                            VectorData result = new MoveVectorData(possibleLastTickOutput.vector.copy().add(getMovementResultFromInput(player, transformInputsToVector(player, new Vector(x, 0, z)), speed, player.xRot)), possibleLastTickOutput, x, z);
                             result = result.returnNewModified(result.vector.copy().mul(player.stuckSpeedMultiplier), VectorData.VectorType.StuckMultiplier);
                             result = result.returnNewModified(handleOnClimbable(result.vector.copy(), player), VectorData.VectorType.Climbable);
                             // Signal that we need to flip sneaking bounding box

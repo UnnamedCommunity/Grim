@@ -49,8 +49,10 @@ public class CompensatedInventory extends Check implements PacketCheck {
     private static final int PLAYER_INVENTORY_CASE = -1;
     private static final int UNSUPPORTED_INVENTORY_CASE = -2;
     public boolean needResend = false;
-    int openWindowID = 0;
+    public int openWindowID = 0;
     public int stateID = 0; // Don't mess up the last sent state ID by changing it
+    public boolean isOpen;
+    public Object inventoryType;
 
     public CompensatedInventory(GrimPlayer playerData) {
         super(playerData);
@@ -194,6 +196,15 @@ public class CompensatedInventory extends Check implements PacketCheck {
     }
 
     public void onPacketReceive(final PacketReceiveEvent event) {
+        if (event.getPacketType() == PacketType.Play.Client.CLIENT_STATUS) {
+          WrapperPlayClientClientStatus status = new WrapperPlayClientClientStatus(event);
+
+          if (status.getAction() == WrapperPlayClientClientStatus.Action.OPEN_INVENTORY_ACHIEVEMENT) {
+              isOpen = true;
+              inventoryType = "minecraft:player"; // TODO: remove
+          }
+        }
+
         if (event.getPacketType() == PacketType.Play.Client.USE_ITEM) {
             WrapperPlayClientUseItem item = new WrapperPlayClientUseItem(event);
 
@@ -286,6 +297,8 @@ public class CompensatedInventory extends Check implements PacketCheck {
                 return;
             }
 
+            isOpen = true;
+
             // Don't care about this click since we can't track it.
             if (menu instanceof NotImplementedMenu) {
                 return;
@@ -313,6 +326,8 @@ public class CompensatedInventory extends Check implements PacketCheck {
             menu = inventory;
             openWindowID = 0;
             menu.setCarried(ItemStack.EMPTY); // Reset carried item
+            isOpen = false;
+            inventoryType = null;
         }
     }
 
@@ -339,22 +354,28 @@ public class CompensatedInventory extends Check implements PacketCheck {
         if (event.getPacketType() == PacketType.Play.Server.OPEN_WINDOW) {
             WrapperPlayServerOpenWindow open = new WrapperPlayServerOpenWindow(event);
 
+            Object invType;
             AbstractContainerMenu newMenu;
             if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_14)) {
                 newMenu = MenuTypes.getMenuFromID(player, inventory, open.getType());
+                invType = open.getType();
             } else {
                 newMenu = MenuTypes.getMenuFromString(player, inventory, open.getLegacyType(), open.getLegacySlots(), open.getHorseId());
+                invType = open.getLegacyType();
             }
 
             packetSendingInventorySize = newMenu instanceof NotImplementedMenu ? UNSUPPORTED_INVENTORY_CASE : newMenu.getSlots().size();
 
             // There doesn't seem to be a check against using 0 as the window ID - let's consider that an invalid packet
             // It will probably mess up a TON of logic both client and server sided, so don't do that!
+            player.sendTransaction();
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 openWindowID = open.getContainerId();
                 menu = newMenu;
                 isPacketInventoryActive = !(newMenu instanceof NotImplementedMenu);
                 needResend = newMenu instanceof NotImplementedMenu;
+                isOpen = true;
+                inventoryType = invType;
             });
         }
 
@@ -363,10 +384,13 @@ public class CompensatedInventory extends Check implements PacketCheck {
             WrapperPlayServerOpenHorseWindow open = new WrapperPlayServerOpenHorseWindow(event);
 
             packetSendingInventorySize = UNSUPPORTED_INVENTORY_CASE;
+            player.sendTransaction();
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 isPacketInventoryActive = false;
                 needResend = true;
                 openWindowID = open.getWindowId();
+                isOpen = true;
+                inventoryType = "minecraft:horse"; // TODO: remove
             });
         }
 
@@ -376,10 +400,13 @@ public class CompensatedInventory extends Check implements PacketCheck {
 
             // Disregard provided window ID, client doesn't care...
             // We need to do this because the client doesn't send a packet when closing the window
+            player.sendTransaction();
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 openWindowID = 0;
                 menu = inventory;
                 menu.setCarried(ItemStack.EMPTY); // Reset carried item
+                isOpen = false;
+                inventoryType = null;
             });
         }
 
@@ -394,6 +421,7 @@ public class CompensatedInventory extends Check implements PacketCheck {
             }
 
             int cachedPacketInvSize = packetSendingInventorySize;
+            player.sendTransaction();
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 // Never true when the inventory is unsupported.
                 // Vanilla ALWAYS sends the entire inventory to resync, this is a valid thing to check
@@ -444,6 +472,7 @@ public class CompensatedInventory extends Check implements PacketCheck {
 
             stateID = slot.getStateId();
 
+            player.sendTransaction();
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 if (!isPacketInventoryActive) return;
                 if (slot.getWindowId() == -1) { // Carried item
